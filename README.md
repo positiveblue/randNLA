@@ -1,1 +1,1 @@
-# RandomNLA
+# RandomizedNLA
