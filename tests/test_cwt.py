@@ -22,6 +22,13 @@ class TestCWT:
     n_sketch_rows = 100
     n_sketch_columns = 20
 
+    # Repetitions/max_errors per test
+    repetitions_per_test = 10
+    n_max_errors = 3
+
+    # Error threshold
+    threshold = 0.1
+
     dense_big_matrix = make_random_dense_gaussian_matrix(n_matrix_rows,
         n_matrix_columns)
     
@@ -64,24 +71,38 @@ class TestCWT:
         """
         TODO: Explain what this test does
         """
-        sketch = clarkson_woodruff_transform(
-            self.dense_big_matrix,
-            self.n_sketch_rows,
-            direcction="rows"
-        )
+
+        n_errors = 0
+        for _ in range(self.repetitions_per_test):
+            sketch = clarkson_woodruff_transform(
+                self.dense_big_matrix,
+                self.n_sketch_rows,
+                direcction="rows"
+            )
         
-        assert_almost_equal(
-            np.linalg.norm(self.dense_big_matrix), np.linalg.norm(sketch), decimal=1)
+            err = np.linalg.norm(self.dense_big_matrix) - np.linalg.norm(sketch)
+            if err > self.threshold:
+                n_errors+=1
+        
+        assert (n_errors <= self.n_max_errors)
     
     
     def test_sketch_columns_norm(self):
         """
         TODO: Explain what this test does
         """
-        sketch = clarkson_woodruff_transform(
-            self.dense_big_matrix,
-            self.n_sketch_columns,
-            direcction="columns"
-        )
 
-        #TODO: check how sketching by columns affects to the norm
+        n_errors = 0
+        for _ in range(self.repetitions_per_test):
+            sketch = clarkson_woodruff_transform(
+                self.dense_big_matrix,
+                self.n_sketch_columns,
+                direcction="columns"
+            )
+
+            err = np.linalg.norm(self.dense_big_matrix, ord=2) - np.linalg.norm(sketch, ord=2)
+            
+            if err > self.threshold:
+                n_errors+=1
+        
+        assert (n_errors <= self.n_max_errors)
