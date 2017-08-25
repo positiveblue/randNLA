@@ -1,4 +1,4 @@
-# RandomizedNLA
+# RandNLA
 
 ### Introducction
 
