@@ -6,7 +6,24 @@ __all__ = ['clarkson_woodruff_transform']
 
 def cwt_matrix(n_rows, n_columns):
     """
-    TODO: Document Function
+    Generate a matrix S to be used in the Clarkson-Woodruff sketch.
+    Given the size of a desired matrix, the method returns a matrix S of size (n_rows, n_columns)
+    where each column has all the entries set to 0 less one position with has been randomly set to
+    +1 o -1 with equal probability.
+    Parameters
+    ----------
+    n_rows: int
+        number of rows of S
+    n_columns: int
+        number of columns of S
+    Returns
+    -------
+    S : (n_rows, n_columns) array_like
+
+    Notes
+    -----
+    Given a matrix A, with probability at least 9/10, norm(SA) == (1+epsilon)*norm(A)
+    Where epsilon is related to the size of S
     """
     S = np.zeros((n_rows, n_columns))
     nz_positions = np.random.randint(0, n_rows, n_columns)
@@ -16,22 +33,24 @@ def cwt_matrix(n_rows, n_columns):
     
     return S
 
-def clarkson_woodruff_transform(input_matrix, sketch_size, direcction="rows"):
+def clarkson_woodruff_transform(input_matrix, sketch_size):
     """
-    Given a matrix A (input_matrix) of size (n, d), compute a matrix A' of size  (n, s) which holds:
+    Given an input_matrix  of size (n, d), compute a matrix A' of size  (sketch_size, d)
+    which holds:
         $||Ax|| = (1 \pm \epsilon) ||A'x||$
     with high probability.
-    To obtain A' we create a matrix S of size (d, s) where every column of transpose(S) has only one position distinct to zero
-    with value +1 or -1. We multiply S*A to obtain A'.
+
+    The error is related to the number of rows of the sketch. sketch_size = $poly(r*\epsilon^{-1})$
+    
     Parameters
     ----------
-    input_matrix (A) : (n, d) array_like
+    input_matrix: (n, d) array_like
         Input matrix
-    n_columns (s) : int
-        number of columns for A'
+    sketch_size: int
+        number of rows for the sketch
     Returns
     -------
-    A' : (n, s) array_like
+    A' : (sketch_size, d) array_like
         Sketch of A
     Notes
     -----
@@ -39,13 +58,6 @@ def clarkson_woodruff_transform(input_matrix, sketch_size, direcction="rows"):
     first time in Kenneth L. Clarkson and David P. Woodruff. Low rank approximation and regression in input sparsity time. In STOC, 2013.
     A' can be computed in O(nnz(A)) but we don't take advantage of sparse matrix in this implementation
     """
-    #TODO: Rewrite function documentation
 
-    if (direcction == "rows"):
-        S = cwt_matrix(sketch_size, input_matrix.shape[0])
-        return np.dot(S, input_matrix)
-    elif (direcction == "columns"):
-        S = cwt_matrix(input_matrix.shape[1], sketch_size)
-        return np.dot(input_matrix, S)
-    else:
-        raise ValueError('Value of direrction must be "rows" or "columns"')
+    S = cwt_matrix(sketch_size, input_matrix.shape[0])
+    return np.dot(S, input_matrix)
