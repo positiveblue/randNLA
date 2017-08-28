@@ -10,7 +10,7 @@ from randnla.cwt_sketch import clarkson_woodruff_transform
 from .utils import make_random_dense_gaussian_matrix
 
 
-class TestCWT:
+class TestClarksonWoodruffTransform(object):
     """
     Testing the Clarkson Woodruff Transform
     """
@@ -20,7 +20,6 @@ class TestCWT:
 
     # Sketch matrix dimensions
     n_sketch_rows = 100
-    n_sketch_columns = 20
 
     # Repetitions/max_errors per test
     repetitions_per_test = 10
@@ -33,14 +32,10 @@ class TestCWT:
         n_matrix_columns)
     
 
-    def test_sketch_rows_dimensions(self):
-        """
-        TODO: Explain what this test does
-        """
+    def test_sketch_dimensions(self):
         sketch = clarkson_woodruff_transform(
             self.dense_big_matrix,
-            self.n_sketch_rows,
-            direcction="rows"
+            self.n_sketch_rows
         )
 
         assert(
@@ -50,59 +45,22 @@ class TestCWT:
             )
         )
 
-    def test_sketch_columns_dimensions(self):
-        """
-        TODO: Explain what this test does
-        """
-        sketch = clarkson_woodruff_transform(
-            self.dense_big_matrix,
-            self.n_sketch_columns,
-            direcction="columns"
-        )
-
-        assert(
-            sketch.shape == (
-                self.dense_big_matrix.shape[0],
-                self.n_sketch_columns
-            )
-        )
 
     def test_sketch_rows_norm(self):
-        """
-        TODO: Explain what this test does
-        """
-
+        # Given the probabilistic nature of the sketches
+        # we run the 'test' multiple times and check that
+        # we pass all/almost all the tries
+        
         n_errors = 0
         for _ in range(self.repetitions_per_test):
             sketch = clarkson_woodruff_transform(
                 self.dense_big_matrix,
-                self.n_sketch_rows,
-                direcction="rows"
+                self.n_sketch_rows
             )
-        
+
+            #we could use other norms (like L2)
             err = np.linalg.norm(self.dense_big_matrix) - np.linalg.norm(sketch)
             if err > self.threshold:
                 n_errors+=1
-        
-        assert (n_errors <= self.n_max_errors)
-    
-    
-    def test_sketch_columns_norm(self):
-        """
-        TODO: Explain what this test does
-        """
 
-        n_errors = 0
-        for _ in range(self.repetitions_per_test):
-            sketch = clarkson_woodruff_transform(
-                self.dense_big_matrix,
-                self.n_sketch_columns,
-                direcction="columns"
-            )
-
-            err = np.linalg.norm(self.dense_big_matrix, ord=2) - np.linalg.norm(sketch, ord=2)
-            
-            if err > self.threshold:
-                n_errors+=1
-        
-        assert (n_errors <= self.n_max_errors)
+        assert(n_errors <= self.n_max_errors)
