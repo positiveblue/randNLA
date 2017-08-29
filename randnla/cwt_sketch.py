@@ -1,3 +1,4 @@
+""" Clarkson-Woodruff Transformation (CountMin Sketch) """
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
@@ -30,7 +31,7 @@ def cwt_matrix(n_rows, n_columns):
     values = np.random.choice([1, -1], n_columns)
     for i in range(n_columns):
         S[nz_positions[i]][i] = values[i]
-    
+
     return S
 
 def clarkson_woodruff_transform(input_matrix, sketch_size):
@@ -41,7 +42,7 @@ def clarkson_woodruff_transform(input_matrix, sketch_size):
     with high probability.
 
     The error is related to the number of rows of the sketch. sketch_size = $poly(r*\epsilon^{-1})$
-    
+
     Parameters
     ----------
     input_matrix: (n, d) array_like
@@ -58,6 +59,5 @@ def clarkson_woodruff_transform(input_matrix, sketch_size):
     first time in Kenneth L. Clarkson and David P. Woodruff. Low rank approximation and regression in input sparsity time. In STOC, 2013.
     A' can be computed in O(nnz(A)) but we don't take advantage of sparse matrix in this implementation
     """
-
     S = cwt_matrix(sketch_size, input_matrix.shape[0])
     return np.dot(S, input_matrix)
